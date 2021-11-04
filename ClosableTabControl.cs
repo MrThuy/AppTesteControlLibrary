@@ -18,219 +18,14 @@ namespace AppTesteControlLibrary
         public ClosableTabControl() : base()
         {
             Padding = new Point(12, 4);
+            
             DrawMode = TabDrawMode.OwnerDrawFixed;
-
             DrawItem += _DrawItem;
+
             MouseDown += _MouseDown;
             Selecting += _Selecting;
             HandleCreated += _HandleCreated;
         }
-
-        private Dictionary<Button, TabPage> dicButtons = new Dictionary<Button, TabPage>();
-
-
-        //private bool blnShow = true;
-        //private Image imgImage;
-
-        public event CancelEventHandler CloseClick;
-
-        //[Browsable(true)]
-        //[DefaultValue(true)]
-        //[Category("Behavior")]
-        //[Description("Show / Hide Close Button(s)")]
-        //public bool ShowButtonClose
-        //{
-
-        //	get
-        //	{
-
-        //		return blnShow;
-
-        //	}
-
-        //	set
-        //	{
-
-        //		blnShow = value;
-
-        //		foreach (var btn in dicButtons.Keys)
-
-        //			btn.Visible = blnShow;
-
-        //		Repos();
-
-        //	}
-
-        //}
-
-        //[Browsable(true)]
-        //[DefaultValue(true)]
-        //[Category("Appearance")]
-        //[Description("Close Image")]
-        //public Image TabPageImage
-        //{
-
-        //	get
-        //	{
-
-        //		return imgImage;
-
-        //	}
-
-        //	set
-        //	{
-
-        //		imgImage = value;
-
-        //	}
-
-        //}
-
-
-
-        //protected override void OnCreateControl()
-        //{
-        //    base.OnCreateControl();
-        //    Repos();
-        //}
-
-
-        //      [DllImport("user32.dll", SetLastError = true)]
-        //      private static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
-        //protected override void OnControlAdded(ControlEventArgs e)
-        //{
-
-        //    base.OnControlAdded(e);
-
-        //    MessageBox.Show($"OnControlAdded - {TabCount}");
-
-        //    TabPage tpCurrent = (TabPage)e.Control;
-
-        //    Rectangle rtCurrent =
-        //       this.GetTabRect(this.TabPages.IndexOf(tpCurrent));
-
-        //    Button btnClose = new Button();
-
-        //    btnClose.Image = Properties.Resources.Close;
-
-        //    btnClose.ImageAlign = ContentAlignment.MiddleRight;
-        //    btnClose.TextAlign = ContentAlignment.MiddleLeft;
-
-        //    btnClose.Size = new Size(rtCurrent.Height - 1,
-        //       rtCurrent.Height - 1);
-        //    btnClose.Location = new Point(rtCurrent.X + rtCurrent.Width -
-        //       rtCurrent.Height - 1, rtCurrent.Y + 1);
-
-        //    SetParent(btnClose.Handle, this.Handle);
-
-        //    btnClose.Click += OnCloseClick;
-
-        //    dicButtons.Add(btnClose, tpCurrent);
-
-        //}
-
-        //protected override void OnLayout(LayoutEventArgs lea)
-        //{
-        //    base.OnLayout(lea);
-        //    Repos();
-        //}
-
-        //      protected virtual void OnCloseClick(object sender, EventArgs e)
-        //      {
-
-        //          if (!DesignMode)
-        //          {
-
-        //              Button btnClose = (Button)sender;
-        //              TabPage tpCurrent = dicButtons[btnClose];
-
-        //              CancelEventArgs cea = new CancelEventArgs();
-
-        //              CloseClick?.Invoke(sender, cea);
-
-        //              if (!cea.Cancel)
-        //              {
-
-        //                  if (TabPages.Count > 1)
-        //                  {
-
-        //                      TabPages.Remove(tpCurrent);
-
-        //                      btnClose.Dispose();
-        //                      Repos();
-
-        //                  }
-
-        //                  else
-
-        //                      MessageBox.Show("Must Have At Least 1 Tab Page");
-
-        //              }
-
-        //          }
-
-        //      }
-
-        //      public void Repos()
-        //      {
-
-        //          foreach (var but in dicButtons)
-
-        //              Repos(but.Value);
-
-        //      }
-
-        //      public void Repos(TabPage tpCurrent)
-        //      {
-
-        //          Button btnClose = CloseButton(tpCurrent);
-
-        //          if (btnClose != null)
-        //          {
-
-        //              int tpIndex = TabPages.IndexOf(tpCurrent);
-
-        //              if (tpIndex >= 0)
-        //              {
-
-        //                  Rectangle rctCurrent = GetTabRect(tpIndex);
-
-        //                  if (SelectedTab == tpCurrent)
-        //                  {
-
-        //                      btnClose.Size = new Size(rctCurrent.Height - 1,
-        //                         rctCurrent.Height - 1);
-        //                      btnClose.Location = new Point(rctCurrent.X +
-        //                         rctCurrent.Width - rctCurrent.Height,
-        //                         rctCurrent.Y + 1);
-
-        //                  }
-
-        //                  else
-        //                  {
-
-        //                      btnClose.Size = new Size(rctCurrent.Height - 3,
-        //                         rctCurrent.Height - 2);
-        //                      btnClose.Location = new Point(rctCurrent.X +
-        //                         rctCurrent.Width - rctCurrent.Height - 1,
-        //                         rctCurrent.Y + 1);
-
-        //                  }
-
-        //                  btnClose.Visible = ShowButtonClose;
-        //                  btnClose.BringToFront();
-        //              }
-
-        //          }
-
-        //      }
-
-        //      protected Button CloseButton(TabPage tpCurrent)
-        //{
-        //	return (from item in dicButtons
-        //			where item.Value == tpCurrent
-        //			select item.Key).FirstOrDefault();
-        //}
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
@@ -249,13 +44,12 @@ namespace AppTesteControlLibrary
 
         private void _MouseDown(object sender, MouseEventArgs e)
         {
+            //System.Diagnostics.Debug.WriteLine($"_MouseDown {SelectedIndex} : {DateTime.Now.ToString("ss.fff")}");
+
             var lastIndex = TabCount - 1;
             if (GetTabRect(lastIndex).Contains(e.Location))
             {
                 NewPage(sender);
-                //TabPages.Insert(lastIndex, $"New Tab {TabCount}");
-                //SelectedIndex = lastIndex;
-                //TabPages[lastIndex].UseVisualStyleBackColor = true;
             }
             else
             {
@@ -263,13 +57,15 @@ namespace AppTesteControlLibrary
                 {
                     var tabRect = GetTabRect(i);
                     tabRect.Inflate(-1, -2);
-                    var closeImage = Properties.Resources.Close_1;
+                    var closeImage = Properties.Resources.Close;
                     var imageRect = new Rectangle(
                         tabRect.Right + 1 - closeImage.Width, tabRect.Y,
                         closeImage.Width, closeImage.Height);
                     if (imageRect.Contains(e.Location))
                     {
+                        System.Diagnostics.Debug.WriteLine($"Antes Remover {i} : {SelectedIndex} : {DateTime.Now.ToString("ss.fff")}");
                         TabPages.RemoveAt(i);
+                        System.Diagnostics.Debug.WriteLine($"Depois Remover {i} : {SelectedIndex} : {DateTime.Now.ToString("ss.fff")}");
                         break;
                     }
                 }
@@ -291,15 +87,34 @@ namespace AppTesteControlLibrary
             }
             else
             {
+                //System.Diagnostics.Debug.WriteLine($"_DrawItem TabIndex {TabPages.IndexOf(tabPage)} {DateTime.Now.ToString("ss.fff")} {sender} {e}");
+
                 tabRect.Inflate(-1, -2);
-                var closeImage = Properties.Resources.Close_1;
+
+                if (e.State == DrawItemState.Selected)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(SystemColors.Control), e.Bounds);
+
+                    TextRenderer.DrawText(e.Graphics, $"{tabPage.Text}",
+                        new Font(tabPage.Font, FontStyle.Bold),
+                        tabRect, tabPage.ForeColor,
+                        TextFormatFlags.Left);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(SystemColors.ButtonShadow), e.Bounds);
+
+                    TextRenderer.DrawText(e.Graphics, $"{tabPage.Text}",
+                        new Font(tabPage.Font, FontStyle.Regular),
+                        tabRect, tabPage.ForeColor,
+                        TextFormatFlags.Left);
+                }
+
+                var closeImage = Properties.Resources.Close;
 
                 e.Graphics.DrawImage(closeImage,
-                    tabRect.Right + 1 - closeImage.Width, tabRect.Y,
-                    closeImage.Width, closeImage.Height);
-
-                TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
-                    tabRect, tabPage.ForeColor, TextFormatFlags.Left);
+                    tabRect.Right + 4 - closeImage.Width, tabRect.Y + 3,
+                    closeImage.Width - 6, closeImage.Height - 6);
             }
         }
 
@@ -310,6 +125,12 @@ namespace AppTesteControlLibrary
             TabPages.Insert(lastIndex, title);
             SelectedIndex = lastIndex;
             TabPages[lastIndex].UseVisualStyleBackColor = true;
+
+
+            //TabPages[lastIndex].MouseEnter += _MouseEnter;
+            //TabPages[lastIndex].MouseHover += _MouseHover;
+            //TabPages[lastIndex].MouseLeave += _MouseLeave;
+
             return TabPages[lastIndex];
         }
     }
