@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AppTesteControlLibrary        
+namespace AppTesteControlLibrary
 {
     class TaPageInfo
     {
@@ -37,6 +37,7 @@ namespace AppTesteControlLibrary
         private bool blnShow = true;
         private Image imgImage;
         private bool bDragingOver;
+        private Point _pt = new Point(0, 0);
 
         public event EventHandler AfterCloseClick;
         public event CancelEventHandler CloseClick;
@@ -96,7 +97,7 @@ namespace AppTesteControlLibrary
 
         private Point btnLocation(Rectangle rtCurrent)
         {
-            return new Point(rtCurrent.X + rtCurrent.Width - 19, 
+            return new Point(rtCurrent.X + rtCurrent.Width - 19,
                              rtCurrent.Y + (rtCurrent.Height/2) - (18/2) );
         }
 
@@ -109,12 +110,12 @@ namespace AppTesteControlLibrary
 
             TabPage tpCurrent = (TabPage)e.Control;
 
-            string _Title = tpCurrent.Text;
+            string _Title = tpCurrent.Text.Trim();
 
             Rectangle rctCurrent =this.GetTabRect(this.TabPages.IndexOf(tpCurrent));
 
             Button btnClose = new Button();
-        
+
             btnClose.Image      = Properties.Resources.Close_10;
             btnClose.ImageAlign = ContentAlignment.MiddleCenter;
             btnClose.TextAlign  = ContentAlignment.MiddleLeft;
@@ -167,7 +168,7 @@ namespace AppTesteControlLibrary
         {
             if (!DesignMode)
             {
-                NewPage(sender);        
+                NewPage(sender);
             }
         }
 
@@ -181,14 +182,14 @@ namespace AppTesteControlLibrary
         {
             if (bDragingOver) return;
 
-            Button btnClose = GetButton(tpCurrent);            
+            Button btnClose = GetButton(tpCurrent);
 
             if (btnClose != null)
             {
                 {
                     int tpIndex = TabPages.IndexOf(tpCurrent);
 
-                    if (tpIndex >= 0)            
+                    if (tpIndex >= 0)
                     {
                         bool _LastPage = (tpCurrent == TabPages[TabCount - 1]);
 
@@ -220,8 +221,10 @@ namespace AppTesteControlLibrary
                                                           rctCurrent.Y + 1);
                         }
 
-                        btnClose.Visible = ShowButtonClose;
+                        //btnClose.Visible = ShowButtonClose;
+                        btnClose.Visible = (rctCurrent.Contains(_pt) || (SelectedIndex == tpIndex) || _LastPage);
                         btnClose.BringToFront();
+
                     }
                 }
             }
@@ -291,17 +294,36 @@ namespace AppTesteControlLibrary
         {
             base.OnDragEnter(drgevent);
 
-            if (drgevent.Data.GetDataPresent(typeof(TabPage)))
-                drgevent.Effect = DragDropEffects.Move;
-            else
+            if (!(drgevent.Data.GetDataPresent(typeof(TabPage))))
                 drgevent.Effect = DragDropEffects.None;
+            //drgevent.Effect = DragDropEffects.Move;
+            else
+            {
+                TabPage DropTab = (TabPage)(drgevent.Data.GetData(typeof(TabPage)));
+
+                Point pt = new Point(drgevent.X, drgevent.Y);
+                //We need client coordinates.
+                pt = PointToClient(pt);
+
+                TabPage hover_tab = GetTabPageByTab(pt);
+                int drop_location_index = FindIndex(hover_tab);
+
+                //if (drop_location_index == FindIndex(DropTab))
+                //    drgevent.Effect = DragDropEffects.None;
+                //else
+                if (drop_location_index >= TabCount - 1)
+                    drgevent.Effect = DragDropEffects.None;
+                else if (drop_location_index < 0)
+                    drgevent.Effect = DragDropEffects.None;
+                else
+                    drgevent.Effect = DragDropEffects.Move;
+            }
         }
 
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
             base.OnDragDrop(drgevent);
             TabPage DropTab = (TabPage)(drgevent.Data.GetData(typeof(TabPage)));
-            
             Point pt = new Point(drgevent.X, drgevent.Y);
             //We need client coordinates.
             pt = PointToClient(pt);
@@ -309,14 +331,37 @@ namespace AppTesteControlLibrary
             TabPage hover_tab = GetTabPageByTab(pt);
             int drop_location_index = FindIndex(hover_tab);
 
-            if (drop_location_index == FindIndex(DropTab)) 
+            if (drop_location_index == FindIndex(DropTab))
+                drgevent.Effect = DragDropEffects.None;
+            else if (drop_location_index >= TabCount - 1)
+                drgevent.Effect = DragDropEffects.None;
+            else if (drop_location_index < 0)
                 drgevent.Effect = DragDropEffects.None;
             else
             {
+                //TabPages.move
+
+
                 //TabPages.Remove(DropTab);
-                Button btnClose = GetButton(DropTab);                
-                btnClose.PerformClick();
-                TabPages.Insert(drop_location_index, DropTab);
+                //DropTab.TabIndex = 1;
+
+                int index_src = TabPages.IndexOf(DropTab);
+                int index_dst = TabPages.IndexOf(hover_tab);
+                TabPages[index_dst] = DropTab;
+
+                //for (int i = index_src; i < TabPages.Count; i++)
+                //{
+                //    if (TabPages[i] == page)
+                //        return i;
+                //}
+
+                TabPages[index_src] = hover_tab;
+                Refresh();
+
+                //Button btnClose = GetButton(DropTab);
+                //btnClose.PerformClick();
+                ////btnClose.Dispose();
+                //TabPages.Insert(drop_location_index, DropTab);
                 Repos();
             }
         }
@@ -388,10 +433,14 @@ namespace AppTesteControlLibrary
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+
+            Point pt = new Point(e.X, e.Y);
+            TabPage tp = GetTabPageByTab(pt);
+
             if (e.Button == MouseButtons.Left)
             {
-                Point pt = new Point(e.X, e.Y);
-                TabPage tp = GetTabPageByTab(pt);
+                //Point pt = new Point(e.X, e.Y);
+                //TabPage tp = GetTabPageByTab(pt);
 
                 if (tp != null)
                 {
@@ -406,7 +455,7 @@ namespace AppTesteControlLibrary
             {
                 if (GetTabRect(i).Contains(pt))
                 {
-                    return TabPages[i];             
+                    return TabPages[i];
                 }
             }
             return null;
@@ -421,6 +470,31 @@ namespace AppTesteControlLibrary
                     return i;
             }
             return -1;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            _pt = new Point(e.X, e.Y);
+
+            for (int i = 0; i < TabPages.Count-1; i++)
+            {
+                GetButton(TabPages[i]).Visible =
+                (GetTabRect(i).Contains(_pt) || (SelectedIndex == i));
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            _pt = new Point(-1, -1);
+
+            for (int i = 0; i < TabPages.Count - 1; i++)
+            {
+                GetButton(TabPages[i]).Visible = (SelectedIndex == i);
+            }
         }
 
     }
