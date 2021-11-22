@@ -8,6 +8,8 @@ using System.Windows.Forms;
 
 namespace AppTesteControlLibrary
 {
+    public delegate Form OpenFormEventHandler();
+
     //class TaPageInfo
     //{
     //    TabPage tab;
@@ -17,7 +19,6 @@ namespace AppTesteControlLibrary
     [ToolboxBitmap(typeof(TabControl))]
     public class ClosableTabBtn : TabControl
     {
-
         public ClosableTabBtn() : base()
         {
 
@@ -31,9 +32,6 @@ namespace AppTesteControlLibrary
         }
 
         private Dictionary<Button, TabPage> dicButtons = new Dictionary<Button, TabPage>();
-
-        public event EventHandler AfterCloseClick;
-        public event CancelEventHandler CloseClick;
 
         private bool blnShow = true;
         [Browsable(true)]
@@ -182,6 +180,9 @@ namespace AppTesteControlLibrary
             Repos();
         }
 
+
+        public event CancelEventHandler CloseClickEvent;
+        public event EventHandler AfterCloseClickEvent;
         protected virtual void OnCloseClick(object sender, EventArgs e)
         {
             if (!DesignMode)
@@ -191,7 +192,7 @@ namespace AppTesteControlLibrary
 
                 CancelEventArgs cea = new CancelEventArgs();
 
-                CloseClick?.Invoke(sender, cea);
+                CloseClickEvent?.Invoke(sender, cea);
 
                 if (!cea.Cancel)
                 {
@@ -201,7 +202,7 @@ namespace AppTesteControlLibrary
 
                         btnClose.Dispose();
                         Repos();
-                        AfterCloseClick?.Invoke(sender, e);
+                        AfterCloseClickEvent?.Invoke(sender, e);
                     };
                 }
             }
@@ -427,26 +428,18 @@ namespace AppTesteControlLibrary
             }
         }
 
-        private Form _FormDefault;
-        public Form FormDefault
-        {
-            get { return _FormDefault; }
-            set { _FormDefault = value; }
-        }
-
+        public event OpenFormEventHandler OpenFormEvent;
         public void NewPage(Form aForm = null)
         {
             if (aForm == null)
             {
-                if (_FormDefault != null)
-                {
-                    //typeof(_FormDefault);
-                    //Activator.CreateInstance(typeof(), new object[] { null, null }) as T;
-                    //aForm = new typeof(_FormDefault)
-                }
+                aForm = OpenFormEvent?.Invoke();
             }
-            //OpenFormInNewPage(aForm);
-            NewBlankPage();
+
+            if (aForm == null)
+                NewBlankPage();
+            else
+               OpenFormInNewPage(aForm);
         }
 
         public TabPage NewBlankPage()
@@ -471,24 +464,25 @@ namespace AppTesteControlLibrary
 
         public Form OpenFormInPage(Form aForm, TabPage aPage = null)
         {
+            if (aForm == null) return aForm;
             if (aPage == null) aPage = TabPages[SelectedIndex];
 
             //TopLevel for form is set to false
             aForm.TopLevel = false;
             aForm.Dock = DockStyle.Fill;
             aForm.FormBorderStyle = FormBorderStyle.None;
-            aPage.Text = aForm.Text;
+            aPage.Text = aForm.Text + "    ";
             aPage.Controls.Clear();
-            aPage.Controls.Add(aForm);
-            //Added form to tabpage            
+            aPage.Controls.Add(aForm);            
             aForm.Show();
             Refresh();
+            Repos();
             return aForm;
         }
 
         public Form OpenFormInNewPage(Form aForm)
         {
-            return OpenFormInPage(aForm, NewBlankPage());
+            return OpenFormInPage(aForm, NewBlankPage());            
         }
     }
 }

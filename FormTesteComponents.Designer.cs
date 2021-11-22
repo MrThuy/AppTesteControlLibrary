@@ -125,6 +125,7 @@ namespace AppTesteControlLibrary
             // 
             // closableTabBtn2
             // 
+            this.closableTabBtn2.AllowDrop = true;
             this.closableTabBtn2.Controls.Add(this.tabPage7);
             this.closableTabBtn2.Controls.Add(this.tabPage9);
             this.closableTabBtn2.Controls.Add(this.tabPage10);
@@ -142,7 +143,7 @@ namespace AppTesteControlLibrary
             this.tabPage7.Location = new System.Drawing.Point(4, 26);
             this.tabPage7.Name = "tabPage7";
             this.tabPage7.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage7.Size = new System.Drawing.Size(192, 70);
+            this.tabPage7.Size = new System.Drawing.Size(646, 125);
             this.tabPage7.TabIndex = 0;
             this.tabPage7.UseVisualStyleBackColor = true;
             // 
@@ -186,14 +187,14 @@ namespace AppTesteControlLibrary
             this.tabPage11.Text = "tabPage11    ";
             this.tabPage11.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // FormTesteComponents
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(686, 375);
             this.Controls.Add(this.closableTabBtn2);
             this.Controls.Add(this.closableTabBtn1);
-            this.Name = "Form1";
+            this.Name = "FormTesteComponents";
             this.Text = "Form1";
             this.closableTabBtn1.ResumeLayout(false);
             this.closableTabBtn2.ResumeLayout(false);
