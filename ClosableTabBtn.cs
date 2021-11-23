@@ -180,7 +180,6 @@ namespace AppTesteControlLibrary
             Repos();
         }
 
-
         public event CancelEventHandler CloseClickEvent;
         public event EventHandler AfterCloseClickEvent;
         protected virtual void OnCloseClick(object sender, EventArgs e)
@@ -418,13 +417,17 @@ namespace AppTesteControlLibrary
             var btn = GetButton(page);
             var index = TabPages.IndexOf(page);
             var tabRect = GetTabRect(index);
-            if (tabRect.Contains(_MousePosition) || (SelectedIndex == index))
+
+            if (index != (TabPages.Count - 1))
             {
-                btn.Image = Properties.Resources.Close;
-            }
-            else if (index != (TabPages.Count-1))
-            {
-                btn.Image = null;
+                if (tabRect.Contains(_MousePosition) || (SelectedIndex == index))
+                {
+                    btn.Image = Properties.Resources.Close;
+                }
+                else
+                {
+                    btn.Image = null;
+                }
             }
         }
 
