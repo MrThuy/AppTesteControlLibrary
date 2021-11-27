@@ -102,7 +102,14 @@ namespace AppTesteControlLibrary
 
             TabPage tpCurrent = (TabPage)e.Control;
 
-            if(TabPages.Count == 1)
+            var _btn = GetButton(tpCurrent);
+            if (_btn != null)
+            {
+                dicButtons.Remove(_btn);
+                _btn.Dispose();
+            }
+
+            if (TabPages.Count == 1)
             {
                 Rectangle rctCurrent = this.GetTabRect(this.TabPages.IndexOf(tpCurrent));
 
@@ -123,8 +130,8 @@ namespace AppTesteControlLibrary
                 dicButtons.Add(btnAdd, tpCurrent);
 
                 tpCurrent.Text = "";
-
-            } else {
+            }
+            else {
                 int index_Location = TabPages.IndexOf(tpCurrent);
                 bool is_LastPage = index_Location == (TabPages.Count - 1);
 
@@ -170,7 +177,11 @@ namespace AppTesteControlLibrary
         {
             base.OnControlRemoved(e);
 
-            GetButton((TabPage)e.Control).Dispose();
+            var _btn = GetButton((TabPage)e.Control);
+            if (_btn != null) { 
+                dicButtons.Remove(_btn);
+                _btn.Dispose();
+            }
             Repos();
         }
 
@@ -198,7 +209,7 @@ namespace AppTesteControlLibrary
                     if (TabPages.Count > 1)
                     {
                         TabPages.Remove(tpCurrent);
-
+                        dicButtons.Remove(btnClose);
                         btnClose.Dispose();
                         Repos();
                         AfterCloseClickEvent?.Invoke(sender, e);
@@ -418,17 +429,18 @@ namespace AppTesteControlLibrary
             var index = TabPages.IndexOf(page);
             var tabRect = GetTabRect(index);
 
-            if (index != (TabPages.Count - 1))
+            if (index == (TabPages.Count - 1))
             {
-                if (tabRect.Contains(_MousePosition) || (SelectedIndex == index))
-                {
-                    btn.Image = Properties.Resources.Close;
-                }
-                else
-                {
-                    btn.Image = null;
-                }
+                btn.Image = Properties.Resources.Add;
+            } 
+            else if (tabRect.Contains(_MousePosition) || (SelectedIndex == index))
+            {
+                btn.Image = Properties.Resources.Close;
             }
+            else
+            {
+                btn.Image = null;
+            }            
         }
 
         public event OpenFormEventHandler OpenFormEvent;
